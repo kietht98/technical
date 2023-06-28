@@ -1,249 +1,157 @@
-import Contact from "../Contact";
+import ImgHeader from "../../assets/images/headerImage/Godfather_Header.jpg";
+import Logo from "../../assets/logo/the-godfather.svg";
+import { EmployeeData } from "../../assets/data";
+import { useMemo, useRef, useState } from "react";
+
+interface IEmployee {
+  popularity: number;
+  name: string;
+  image: string;
+  biography: string;
+  colleagues: string[];
+}
 
 const Home = () => {
-  return (
-    <>
-      <section className="bg-center bg-no-repeat bg-[url('https://flowbite.s3.amazonaws.com/docs/jumbotron/conference.jpg')] bg-gray-700 bg-blend-multiply">
-        <section className="bg-white dark:bg-gray-900">
-          <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16">
-            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 md:p-12 mb-8">
-              <a
-                href="#"
-                className="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-md dark:bg-gray-700 dark:text-blue-400 mb-2"
-              >
-                <svg
-                  className="w-3 h-3 mr-1"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
+  const EmployeeDefault = useMemo(() => {
+    return EmployeeData["employees"];
+  }, []);
+
+  const prevData = useRef(EmployeeDefault);
+  const [employees, setEmployees] = useState<IEmployee[]>([...EmployeeDefault]);
+  const [employeeActive, setEmployeeActive] = useState(employees[0]);
+  const [colleagues, setColleagues] = useState<string[]>(
+    employeeActive.colleagues
+  );
+
+  const onChangeBiography = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const employeeCurrent = employees?.map((employee) => {
+      if (employee.name?.includes(employeeActive.name)) {
+        Object.assign(employee, {
+          popularity: event.target.value,
+        });
+      }
+      return employee;
+    });
+    setEmployees(employeeCurrent);
+    setEmployeeActive({
+      ...employeeActive,
+      popularity: Number(event.target.value),
+    });
+  };
+
+  const findColleague = (employee: IEmployee) => {
+    const colleague = colleagues.find((colleague) =>
+      colleague.includes(employee?.name)
+    );
+    return colleague;
+  };
+
+  const activeEmployee = (employee: IEmployee) => {
+    setEmployees(prevData.current);
+    setEmployeeActive(employee);
+    setColleagues(employee.colleagues);
+  };
+
+  const SideBarComponent = () => {
+    return (
+      <div className="md:w-60 lg:w-80  bg-[#1d1f28b0] h-screen absolute left-0 top-0 z-20">
+        <div className="h-80 relative">
+          <a href="/" className="absolute inset-0 h-fit m-auto">
+            <img className="w-36 flex mx-auto" src={Logo} alt="the godfather" />
+          </a>
+        </div>
+        <div>
+          <ul>
+            {employees.map((employee, index) => {
+              return (
+                <li
+                  key={`employees-${index}`}
+                  className="hover:bg-slate-700 cursor-pointer"
+                  onClick={() => {
+                    activeEmployee(employee);
+                  }}
                 >
-                  <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
-                </svg>
-                Tutorial
-              </a>
-              <h1 className="text-gray-900 dark:text-white text-3xl md:text-5xl font-extrabold mb-2">
-                How to quickly deploy a static website
-              </h1>
-              <p className="text-lg font-normal text-gray-500 dark:text-gray-400 mb-6">
-                Static websites are now used to bootstrap lots of websites and
-                are becoming the basis for a variety of tools that even
-                influence both web designers and developers.
-              </p>
-              <a
-                href="#"
-                className="inline-flex justify-center items-center py-2.5 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
-              >
-                Read more
-                <svg
-                  aria-hidden="true"
-                  className="ml-2 -mr-1 w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  ></path>
-                </svg>
-              </a>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 md:p-12">
-                <a
-                  href="#"
-                  className="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-md dark:bg-gray-700 dark:text-green-400 mb-2"
-                >
-                  <svg
-                    className="w-3 h-3 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
+                  <div
+                    className="px-10 text-[#21d0ee]  whitespace-nowrap text-center truncate"
+                    style={{
+                      color: `${
+                        findColleague(employee) ||
+                        employeeActive.name?.includes(employee.name)
+                          ? "#21d0ee"
+                          : "#fff"
+                      }`,
+                      fontSize: `${Math.floor(employee.popularity)}px`,
+                    }}
                   >
-                    <path
-                      clipRule="evenodd"
-                      fillRule="evenodd"
-                      d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z"
-                    ></path>
-                  </svg>
-                  Design
-                </a>
-                <h2 className="text-gray-900 dark:text-white text-3xl font-extrabold mb-2">
-                  Start with Flowbite Design System
-                </h2>
-                <p className="text-lg font-normal text-gray-500 dark:text-gray-400 mb-4">
-                  Static websites are now used to bootstrap lots of websites and
-                  are becoming the basis for a variety of tools that even
-                  influence both web designers and developers.
-                </p>
-                <a
-                  href="#"
-                  className="text-blue-600 dark:text-blue-500 hover:underline font-medium text-lg inline-flex items-center"
-                >
-                  Read more
-                  <svg
-                    aria-hidden="true"
-                    className="w-4 h-4 ml-2"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    ></path>
-                  </svg>
-                </a>
+                    {employee.name}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    );
+  };
+
+  const HeaderComponent = () => {
+    return (
+      <div className="relative left-0 top-0">
+        <img
+          className="md:h-[150px] xl:h-[300px] w-full object-cover object-top"
+          src={ImgHeader}
+          alt="Godfather Header"
+        />
+      </div>
+    );
+  };
+
+  const DetailEmployeeComponent = useMemo(() => {
+    return (
+      <div className=" h-full bg-sidebar shadow-container pb-16 relative  z-10">
+        <div className="md:w-[calc(100%_-_15rem)] lg:w-[calc(100%_-_20rem)] ml-auto px-14 relative ">
+          <div className="w-[calc(100%_-_112px)] pl-4 ml-auto text-white absolute -top-10 flex gap-6">
+            <img
+              src={`images/profilePics/${employeeActive.image}`}
+              className="w-28 h-28 border border-[#9d9c9c] shadow-avatar rounded-md "
+              alt="Vito_Corleone"
+            />
+            <div className="flex flex-col gap-4  pb-6  flex-1">
+              <h2 className="text-4xl leading-[1.6rem] font-light whitespace-nowrap">
+                {employeeActive.name}
+              </h2>
+
+              <div className="flex gap-3 items-center pt-6">
+                <label for="small-range" className="block text-xl ">
+                  Popularity
+                </label>
+                <input
+                  id="small-range"
+                  type="range"
+                  onChange={(e) => onChangeBiography(e)}
+                  value={employeeActive.popularity}
+                  className="w-full h-1  bg-gray-200 rounded-lg appearance-none cursor-pointer range-sm dark:bg-gray-700"
+                ></input>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 md:p-12">
-                <a
-                  href="#"
-                  className="bg-purple-100 text-purple-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-md dark:bg-gray-700 dark:text-purple-400 mb-2"
-                >
-                  <svg
-                    className="w-3 h-3 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path
-                      clipRule="evenodd"
-                      fillRule="evenodd"
-                      d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                    ></path>
-                  </svg>
-                  Code
-                </a>
-                <h2 className="text-gray-900 dark:text-white text-3xl font-extrabold mb-2">
-                  Best react libraries around the web
-                </h2>
-                <p className="text-lg font-normal text-gray-500 dark:text-gray-400 mb-4">
-                  Static websites are now used to bootstrap lots of websites and
-                  are becoming the basis for a variety of tools that even
-                  influence both web designers and developers.
+              <div className="rounded-sm bg-black p-4 pb-4 ">
+                <h3 className="mb-2">Biography</h3>
+                <p className="overflow-y-auto md:max-h-[200px]">
+                  {employeeActive.biography}
                 </p>
-                <a
-                  href="#"
-                  className="text-blue-600 dark:text-blue-500 hover:underline font-medium text-lg inline-flex items-center"
-                >
-                  Read more
-                  <svg
-                    aria-hidden="true"
-                    className="w-4 h-4 ml-2"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    ></path>
-                  </svg>
-                </a>
               </div>
             </div>
           </div>
-        </section>
-      </section>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-8 px-4 mx-auto max-w-screen-xl lg:py-16">
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-6.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-7.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-8.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-9.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-10.jpg"
-            alt=""
-          />
-        </div>
-        <div>
-          <img
-            className="h-auto max-w-full rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg"
-            alt=""
-          />
         </div>
       </div>
-      <Contact />
-    </>
+    );
+  });
+
+  return (
+    <div className="relative h-screen">
+      <SideBarComponent />
+      <HeaderComponent />
+      {DetailEmployeeComponent}
+    </div>
   );
 };
 
